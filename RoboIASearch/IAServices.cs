@@ -27,13 +27,13 @@ namespace RoboIASearch
         {
 
 
-            var promptArquivoPorArquivoCodigo = File.ReadAllText("prompt-arquivo-por-arquivo-codigo.txt");
+            //var promptArquivoPorArquivoCodigo = File.ReadAllText("prompt-arquivo-por-arquivo-codigo.txt");
 
-            await AnalisarArquivoPorArquivoCodigo(_micrsoservicos, promptArquivoPorArquivoCodigo);
+            //await AnalisarArquivoPorArquivoCodigo(_micrsoservicos, promptArquivoPorArquivoCodigo);
 
-            var promptArquivoPorArquivoTeste = File.ReadAllText("prompt-arquivo-por-arquivo-teste.txt");
+            //var promptArquivoPorArquivoTeste = File.ReadAllText("prompt-arquivo-por-arquivo-teste.txt");
 
-            await AnalisarArquivoPorArquivoTestes(_micrsoservicos, promptArquivoPorArquivoTeste);
+            //await AnalisarArquivoPorArquivoTestes(_micrsoservicos, promptArquivoPorArquivoTeste);
 
             var promptSumarizarCodigo = File.ReadAllText("prompt-sumarizar-codigo.txt");
 
@@ -49,8 +49,10 @@ namespace RoboIASearch
         {
             foreach (var microservico in microservicos)
             {
+                Console.WriteLine($"Sumarizando analises do código microserviço: {microservico}");
+
                 var microservicoName = Path.GetFileName(microservico);
-                var files = Directory.GetFiles(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, microservicoName, "code"));
+                var files = Directory.GetFiles(Path.Combine(_outpunt, microservicoName, "parcial","code"));
                 await SumarizarRecomendacoes(microservicoName, prompt, files, "code");
 
             }
@@ -61,7 +63,7 @@ namespace RoboIASearch
             foreach (var microservico in microservicos)
             {
                 var microservicoName = Path.GetFileName(microservico);
-                var files = Directory.GetFiles(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, microservicoName, "test"));
+                var files = Directory.GetFiles(Path.Combine(_outpunt, microservicoName, "parcial", "test"));
                 await SumarizarRecomendacoes(microservicoName, prompt, files, "test");
 
             }
@@ -71,28 +73,32 @@ namespace RoboIASearch
         {
             var content = string.Empty;
             var parte = 0;
-            var tamanho = 0D;
             foreach (var file in files)
             {
 
                 content += File.ReadAllText(file);
-                tamanho = CalcularTamanhoTextoEmKB(content);
+                var tamanho = CalcularTamanhoTextoEmKB(content);
                 if (tamanho >= 500)
                 {
                     content = string.Empty;
                     parte++;
-                    await SumarizarRecomendacoesPoIA(microservicoName, content, parte.ToString(), prompt, diretorio);
+                    await SumarizarRecomendacoesPoIA(microservicoName, content, parte.ToString(), prompt, diretorio, tamanho);
                 }
             }
 
             if (!string.IsNullOrEmpty(content))
             {
-                await SumarizarRecomendacoesPoIA(microservicoName, content, (parte + 1).ToString(), prompt, diretorio);
+                var tamanho = CalcularTamanhoTextoEmKB(content);
+                await SumarizarRecomendacoesPoIA(microservicoName, content, (parte + 1).ToString(), prompt, diretorio, tamanho);
             }
         }
 
-        private async Task SumarizarRecomendacoesPoIA(string microservicoName, string content, string parte, string prompt, string diretorio)
+        private async Task SumarizarRecomendacoesPoIA(string microservicoName, string content, string parte, string prompt, string diretorio,double tamanho)
         {
+            Console.WriteLine($"Sumarizando parte : {parte}");
+            Console.WriteLine($"Tamanho : {tamanho}");
+            Console.WriteLine($"Prompt: {prompt}");
+
             //using (var httpClient = new HttpClient())
             {
                 _clientHttp.DefaultRequestHeaders.Add("api-key", _config.ApiKey);
@@ -138,6 +144,19 @@ namespace RoboIASearch
 
                     // Extrair informações relevantes
                     var messageContent = data.RootElement.GetProperty("choices")[0].GetProperty("message").GetProperty("content").GetString();
+                    var completionTokens = data.RootElement.GetProperty("usage").GetProperty("completion_tokens").GetInt32();
+                    var promptTokens = data.RootElement.GetProperty("usage").GetProperty("prompt_tokens").GetInt32();
+                    var totalTokens = data.RootElement.GetProperty("usage").GetProperty("total_tokens").GetInt32();
+
+                    // Exibir as informações
+                    Console.WriteLine("Conteúdo da Mensagem:");
+                    Console.WriteLine(messageContent);
+                    Console.WriteLine("****");
+                    Console.WriteLine("Usage:");
+                    Console.WriteLine("Completion Tokens: " + completionTokens);
+                    Console.WriteLine("Prompt Tokens: " + promptTokens);
+                    Console.WriteLine("Total Tokens: " + totalTokens);
+
 
 
                     var arquivoName = parte;
@@ -157,11 +176,11 @@ namespace RoboIASearch
                         {
                             var jsonContext = await reader.ReadToEndAsync();
 
-                            var destino = Path.Combine(_outpunt,microservicoName, "resumo", diretorio);
+                            var destino = Path.Combine(_outpunt, microservicoName, "resumo", diretorio);
                             if (!Directory.Exists(destino))
                                 Directory.CreateDirectory(destino);
 
-                            await File.WriteAllTextAsync($"{destino}/{parte}.json", jsonContext, Encoding.UTF8);
+                            await File.WriteAllTextAsync($"{destino}/{parte}-{Math.Ceiling(tamanho)}.json", jsonContext, Encoding.UTF8);
                         }
                     }
                 }
