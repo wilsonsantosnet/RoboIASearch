@@ -16,16 +16,37 @@
     <None Update="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="prompt-arquivo-por-arquivo-teste.txt">
+    <None Update="prompt-arquivo-por-arquivo-codigo-v3.pro">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="prompt-sumarizar-teste.txt">
+    <None Update="prompt-arquivo-por-arquivo-codigo-v2.pro">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="prompt-sumarizar-codigo.txt">
+    <None Update="prompt-arquivo-por-arquivo-pom.pro">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="prompt-arquivo-por-arquivo-codigo.txt">
+    <None Update="prompt-arquivo-por-arquivo-teste.pro">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="prompt-sumarizar-codigo-v2.pro">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="prompt-sumarizar-geral-pom.pro">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="prompt-sumarizar-teste.pro">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="prompt-sumarizar-codigo.pro">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="prompt-arquivo-por-arquivo-codigo.pro">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TemplateHtmlindice.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TemplateHtml.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

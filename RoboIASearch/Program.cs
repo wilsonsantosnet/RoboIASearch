@@ -9,7 +9,10 @@ using IHost host = Host.CreateDefaultBuilder(args)
         var config = hostCtx.Configuration.GetSection("WorkerConfig");
         services.Configure<WorkerConfig>(config);
         services.AddSingleton<IAServices>();
-        services.AddHttpClient();
+        services.AddHttpClient("IAClient", client =>
+        {
+            client.Timeout = TimeSpan.FromMinutes(5); // Define o timeout para 5 minutos
+        });
     })
     .Build();
 
